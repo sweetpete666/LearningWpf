@@ -1,6 +1,6 @@
 ﻿namespace LearningWpf.Models
 {
-    public class UserJobGroup
+    public class JobGroup
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
