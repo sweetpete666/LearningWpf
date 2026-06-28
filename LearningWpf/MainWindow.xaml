@@ -5,14 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LearningWpf"
         xmlns:converters="clr-namespace:LearningWpf.Converters"
+        xmlns:vm="clr-namespace:LearningWpf.ViewModels"
+        xmlns:views="clr-namespace:LearningWpf.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="LearningWpf" Height="450" Width="800">
     
     <Window.Resources>
         <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
     </Window.Resources>
 
-    <Grid>
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
 
+    <Grid>
+        <views:UserSelectionView/>
     </Grid>
 </Window>
