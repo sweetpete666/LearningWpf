@@ -79,5 +79,11 @@ namespace LearningWpf.Helper
              .CreateLogger();
             logging.AddSerilog();
         }
+
+        internal static void Shutdown()
+        {
+            Log.CloseAndFlush();
+            ShutDownConsole();
+        }
     }
 }

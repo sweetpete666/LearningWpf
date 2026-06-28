@@ -46,13 +46,15 @@ namespace LearningWpf
             base.OnStartup(e);
         }
 
-        protected override void OnExit(ExitEventArgs e)
+        protected override async void OnExit(ExitEventArgs e)
         {
-            // Host sauber stoppen und Ressourcen freigeben
-            AppHost?.StopAsync().GetAwaiter().GetResult();
-            Log.CloseAndFlush(); // Serilog-Buffer leeren
+            if (AppHost != null)
+            {
+                await AppHost.StopAsync();
+                AppHost.Dispose();
+            }
 
-            ConfigurationManager.ShutDownConsole();
+            ConfigurationManager.Shutdown();
 
             base.OnExit(e);
         }

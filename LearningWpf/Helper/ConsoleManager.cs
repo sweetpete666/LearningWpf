@@ -47,21 +47,21 @@ namespace LearningWpf.Helper
         public void InitializeConsole()
         {
             AllocConsole();
-            this.consoleHandle = GetConsoleWindow();
+            consoleHandle = GetConsoleWindow();
 
-            if (this.consoleHandle != IntPtr.Zero)
+            if (consoleHandle != IntPtr.Zero)
             {
                 ConsoleSettings settings = LoadSettings();
-                MoveWindow(this.consoleHandle, settings.X, settings.Y, settings.Width, settings.Height, true);
+                MoveWindow(consoleHandle, settings.X, settings.Y, settings.Width, settings.Height, true);
             }
         }
 
         public void TerminateConsole()
         {
-            if (this.consoleHandle != IntPtr.Zero)
+            if (consoleHandle != IntPtr.Zero)
             {
                 RECT rect;
-                if (GetWindowRect(this.consoleHandle, out rect))
+                if (GetWindowRect(consoleHandle, out rect))
                 {
                     ConsoleSettings currentSettings = new()
                     {
