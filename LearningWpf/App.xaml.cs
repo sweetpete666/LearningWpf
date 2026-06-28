@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using LearningWpf.Helper;
 using LearningWpf.ViewModels;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using System.Windows;
 
 namespace LearningWpf
 {
@@ -14,22 +14,27 @@ namespace LearningWpf
     /// </summary>
     public partial class App : Application
     {
+        private readonly ConsoleManager consoleManager = new();
         public static IHost? AppHost { get; private set; }
 
         public App()
         {
-            // 1. Serilog als globalen Logger konfigurieren
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Debug() // Ausgabe im VS-Debug-Fenster
-                .WriteTo.File("logs/app-log.txt", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
+            this.consoleManager.InitializeConsole();
 
-            // 2. Den .NET Generic Host aufbauen (DI-Container + Logging)
             AppHost = Host.CreateDefaultBuilder()
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    // Die separate Logging-Datei explizit zur Konfiguration hinzufügen
+                    config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
+                })
                 .ConfigureLogging((context, logging) =>
                 {
                     logging.ClearProviders(); // Standard-Konsolen-Logger entfernen
+                                              // Liest nun automatisch aus der serilog.json, da sie Teil der Configuration ist
+                    Log.Logger = new LoggerConfiguration()
+                        .ReadFrom.Configuration(context.Configuration)
+                        .CreateLogger();
+
                     logging.AddSerilog();     // Serilog an das Microsoft-Logging anbinden
                 })
                 .ConfigureServices((context, services) =>
@@ -58,6 +63,8 @@ namespace LearningWpf
             // Host sauber stoppen und Ressourcen freigeben
             AppHost?.StopAsync().GetAwaiter().GetResult();
             Log.CloseAndFlush(); // Serilog-Buffer leeren
+
+            this.consoleManager.TerminateConsole();
 
             base.OnExit(e);
         }

@@ -14,10 +14,6 @@
         <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
     </Window.Resources>
 
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
-
     <Grid>
         <views:UserSelectionView/>
     </Grid>

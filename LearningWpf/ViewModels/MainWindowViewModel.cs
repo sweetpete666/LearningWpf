@@ -1,7 +1,8 @@
+using LearningWpf.Models;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using LearningWpf.Models;
 
 namespace LearningWpf.ViewModels
 {
@@ -49,19 +50,24 @@ namespace LearningWpf.ViewModels
         }
 
         // ── Konstruktor mit Beispieldaten ─────────────────────────────────────
-        public MainWindowViewModel()
+        private readonly ILogger<MainWindowViewModel> logger;
+        public MainWindowViewModel(ILogger<MainWindowViewModel> logger)
         {
+            this.logger = logger;
             LoadSampleData();
         }
 
         private void LoadSampleData()
         {
+            logger.LogInformation("Loading sample data for users, job groups, and jobs.");
+
             var jobDevelopment = new List<Job>
             {
                 new() { Id = 1, Name = "C# entwickeln",      Description = "Backend-Logik in C# schreiben" },
                 new() { Id = 2, Name = "XAML gestalten",     Description = "WPF-Oberflächen erstellen" },
                 new() { Id = 3, Name = "Unit Tests",         Description = "Tests schreiben und ausführen" },
             };
+            if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("X: {@JobList}", jobDevelopment);
 
             var jobDesign = new List<Job>
             {
@@ -76,23 +82,29 @@ namespace LearningWpf.ViewModels
                 new() { Id = 8, Name = "Standup moderieren", Description = "Tägliches Meeting leiten" },
             };
 
-            var groupDev     = new JobGroup { Id = 1, Name = "Entwicklung",  Description = "Software entwickeln", Jobs = jobDevelopment };
-            var groupDesign  = new JobGroup { Id = 2, Name = "Design",       Description = "UX & UI gestalten",   Jobs = jobDesign };
-            var groupMgmt    = new JobGroup { Id = 3, Name = "Management",   Description = "Projekte steuern",    Jobs = jobManagement };
+            var groupDev = new JobGroup { Id = 1, Name = "Entwicklung", Description = "Software entwickeln", Jobs = jobDevelopment };
+            var groupDesign = new JobGroup { Id = 2, Name = "Design", Description = "UX & UI gestalten", Jobs = jobDesign };
+            var groupMgmt = new JobGroup { Id = 3, Name = "Management", Description = "Projekte steuern", Jobs = jobManagement };
 
             Users.Add(new User
             {
-                Id = 1, Name = "Anna Müller", Email = "anna@example.com",
+                Id = 1,
+                Name = "Anna Müller",
+                Email = "anna@example.com",
                 JobGroups = new List<JobGroup> { groupDev, groupDesign }
             });
             Users.Add(new User
             {
-                Id = 2, Name = "Ben Schmidt", Email = "ben@example.com",
+                Id = 2,
+                Name = "Ben Schmidt",
+                Email = "ben@example.com",
                 JobGroups = new List<JobGroup> { groupMgmt }
             });
             Users.Add(new User
             {
-                Id = 3, Name = "Clara Weber", Email = "clara@example.com",
+                Id = 3,
+                Name = "Clara Weber",
+                Email = "clara@example.com",
                 JobGroups = new List<JobGroup> { groupDev, groupDesign, groupMgmt }
             });
         }
