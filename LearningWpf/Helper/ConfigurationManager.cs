@@ -3,29 +3,38 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace LearningWpf.Helper
 {
     public static class ConfigurationManager
     {
-        // ── NEU: DER GESAMTE BUILDER WIRD HIER ERZEUGT UND KONFIGURIERT ──────
+        // 1. Die Instanz des ConsoleManager wird hier zentral als statisches Feld gehalten
+        private static readonly ConsoleManager consoleManager = new();
+
         public static IHostBuilder CreateHostBuilder()
         {
-            // 1. Den rohen Standard-Builder instanziieren
-            var builder = Host.CreateDefaultBuilder();
+            // 2. TIMING-FIX: Konsole SOFORT erstellen, noch VOR dem Builder!
+            // Dadurch existiert das Windows-Fenster-Handle rechtzeitig für Serilog.
+            consoleManager.InitializeConsole();
 
-            // 2. Umgebung ermitteln
+            var builder = Host.CreateDefaultBuilder();
             var environment = DetectEnvironment();
 
-            // 3. Alle Teilschritte anhängen und den konfigurierten Builder zurückgeben
             return builder
                 .UseEnvironment(environment)
                 .ConfigureAppConfiguration(ConfigureJsonFiles)
                 .ConfigureLogging(ConfigureLogging);
         }
 
-        private static string DetectEnvironment()
+        // Hilfsmethode, damit die App.xaml.cs die Konsole beim Beenden sauber schließen kann
+        public static void ShutDownConsole()
+        {
+            consoleManager.TerminateConsole();
+        }
+
+        public static string DetectEnvironment()
         {
             var executionPath = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -40,11 +49,10 @@ namespace LearningWpf.Helper
 
         private static void ConfigureJsonFiles(HostBuilderContext context, IConfigurationBuilder config)
         {
-            config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
-
             var currentEnv = context.HostingEnvironment.EnvironmentName;
-            var envLoggingJson = $"logging.{currentEnv}.json";
-            config.AddJsonFile(envLoggingJson, optional: true, reloadOnChange: true);
+
+            config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
+            config.AddJsonFile($"logging.{currentEnv}.json", optional: true, reloadOnChange: true);
 
             if (context.HostingEnvironment.IsDevelopment())
             {
@@ -57,11 +65,8 @@ namespace LearningWpf.Helper
                     cleanUserName = "Developer";
                 }
 
-                var developerLoggingJson = $"logging.Development.{cleanUserName}.json";
-                config.AddJsonFile(developerLoggingJson, optional: true, reloadOnChange: true);
-
-                var developerAppJson = $"appsettings.Development.{cleanUserName}.json";
-                config.AddJsonFile(developerAppJson, optional: true, reloadOnChange: true);
+                config.AddJsonFile($"logging.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
+                config.AddJsonFile($"appsettings.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
             }
         }
 
@@ -70,9 +75,8 @@ namespace LearningWpf.Helper
             logging.ClearProviders();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(context.Configuration)
-                .CreateLogger();
-
+             .ReadFrom.Configuration(context.Configuration)
+             .CreateLogger();
             logging.AddSerilog();
         }
     }
