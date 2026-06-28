@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using System;
 using System.Runtime.InteropServices;
-using System.Text.Json;
+using Microsoft.Win32; // Unbedingt für den Registry-Zugriff hinzufügen!
 
 namespace LearningWpf.Helper
 {
@@ -8,7 +8,7 @@ namespace LearningWpf.Helper
     {
         public class ConsoleSettings
         {
-            public int X { get; set; } = 1920; // Standardwert (Startet auf dem 2. Monitor rechts)
+            public int X { get; set; } = 1920;
             public int Y { get; set; } = 100;
             public int Width { get; set; } = 900;
             public int Height { get; set; } = 500;
@@ -40,28 +40,24 @@ namespace LearningWpf.Helper
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
         // ──────────────────────────────────────────────────────────────────────
 
-        private static readonly string SettingsPath = "consolestate.json";
+        // Der Pfad in der Windows-Registry für Ihre App
+        private static readonly string RegistrySubKey = @"Software\LearningWpf\ConsoleSettings";
         private IntPtr consoleHandle = IntPtr.Zero;
 
         public void InitializeConsole()
         {
-            // 1. Konsole erstellen
             AllocConsole();
             this.consoleHandle = GetConsoleWindow();
 
             if (this.consoleHandle != IntPtr.Zero)
             {
-                // 2. Letzte Position laden
                 ConsoleSettings settings = LoadSettings();
-
-                // 3. Konsole positionieren
                 MoveWindow(this.consoleHandle, settings.X, settings.Y, settings.Width, settings.Height, true);
             }
         }
 
         public void TerminateConsole()
         {
-            // 4. Position vor dem Schließen speichern
             if (this.consoleHandle != IntPtr.Zero)
             {
                 RECT rect;
@@ -77,39 +73,53 @@ namespace LearningWpf.Helper
                     SaveSettings(currentSettings);
                 }
             }
-
-            // 5. Konsole freigeben
             FreeConsole();
         }
 
         private ConsoleSettings LoadSettings()
         {
-            if (!File.Exists(SettingsPath))
-            {
-                return new ConsoleSettings();
-            }
+            ConsoleSettings settings = new();
 
             try
             {
-                string json = File.ReadAllText(SettingsPath);
-                return JsonSerializer.Deserialize<ConsoleSettings>(json) ?? new ConsoleSettings();
+                // Öffnet den Registry-Schlüssel zum Lesen
+                using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistrySubKey);
+
+                if (key != null)
+                {
+                    // Holt die Werte und nutzt die Standardwerte, falls ein Eintrag fehlt
+                    settings.X = (int)(key.GetValue("X", settings.X) ?? settings.X);
+                    settings.Y = (int)(key.GetValue("Y", settings.Y) ?? settings.Y);
+                    settings.Width = (int)(key.GetValue("Width", settings.Width) ?? settings.Width);
+                    settings.Height = (int)(key.GetValue("Height", settings.Height) ?? settings.Height);
+                }
             }
             catch
             {
-                return new ConsoleSettings();
+                // Bei Fehlern (z.B. Leserechten) greifen die Standardwerte der Klasse
             }
+
+            return settings;
         }
 
         private void SaveSettings(ConsoleSettings settings)
         {
             try
             {
-                string json = JsonSerializer.Serialize(settings);
-                File.WriteAllText(SettingsPath, json);
+                // Erstellt oder öffnet den Pfad mit Schreibrechten
+                using RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistrySubKey);
+
+                if (key != null)
+                {
+                    key.SetValue("X", settings.X);
+                    key.SetValue("Y", settings.Y);
+                    key.SetValue("Width", settings.Width);
+                    key.SetValue("Height", settings.Height);
+                }
             }
             catch
             {
-                // Fehler beim Speichern der UI-Settings ignorieren
+                // Fehler beim Schreiben in die Registry sicher ignorieren
             }
         }
     }
