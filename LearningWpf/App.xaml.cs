@@ -25,9 +25,7 @@ namespace LearningWpf
             AppHost = hostBuilder
                 .ConfigureServices((context, services) =>
                 {
-                    services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
                     services.AddSingleton<IUserRepository, MockUserRepository>();
-
                     services.AddSingleton<MainWindow>();
                     services.AddTransient<MainWindowViewModel>();
                 })
@@ -53,9 +51,6 @@ namespace LearningWpf
                 await AppHost.StopAsync();
                 AppHost.Dispose();
             }
-
-            ConfigurationManager.Shutdown();
-
             base.OnExit(e);
         }
 
