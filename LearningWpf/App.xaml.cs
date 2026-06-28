@@ -1,6 +1,5 @@
 ﻿using LearningWpf.Helper;
 using LearningWpf.ViewModels;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -20,12 +19,14 @@ namespace LearningWpf
         public App()
         {
             this.consoleManager.InitializeConsole();
+            
+            var environment = ConfigurationManager.DetectEnvironment();
 
             AppHost = Host.CreateDefaultBuilder()
+                .UseEnvironment(environment)
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    // Die separate Logging-Datei explizit zur Konfiguration hinzufügen
-                    config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
+                    ConfigurationManager.ConfigureJsonFiles(context, config);
                 })
                 .ConfigureLogging((context, logging) =>
                 {
