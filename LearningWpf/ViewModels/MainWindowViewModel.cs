@@ -1,5 +1,6 @@
 using LearningWpf.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -51,9 +52,13 @@ namespace LearningWpf.ViewModels
 
         // ── Konstruktor mit Beispieldaten ─────────────────────────────────────
         private readonly ILogger<MainWindowViewModel> logger;
-        public MainWindowViewModel(ILogger<MainWindowViewModel> logger)
+        private readonly AppSettings settings;
+        public MainWindowViewModel(IOptions<AppSettings> options, ILogger<MainWindowViewModel> logger)
         {
             this.logger = logger;
+            this.settings = options.Value;
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("MainWindowViewModel created with AppSettings: {@AppSettings}", settings);
             LoadSampleData();
         }
 

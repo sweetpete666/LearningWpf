@@ -39,7 +39,8 @@ namespace LearningWpf
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    // 3. Hier registrieren Sie Ihre Fenster und ViewModels für DI
+                   // 3. Hier registrieren Sie Ihre Fenster und ViewModels für DI
+                    services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
                     services.AddSingleton<MainWindow>();
                     services.AddTransient<MainWindowViewModel>(); // Falls Sie MVVM nutzen
                 })
