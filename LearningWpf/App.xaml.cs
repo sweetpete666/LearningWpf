@@ -19,33 +19,21 @@ namespace LearningWpf
 
         public App()
         {
+            // 1. Konsole initialisieren (lädt Position aus Registry)
             this.consoleManager.InitializeConsole();
-            
-            var environment = ConfigurationManager.DetectEnvironment();
 
-            AppHost = Host.CreateDefaultBuilder()
-                .UseEnvironment(environment)
-                .ConfigureAppConfiguration((context, config) =>
-                {
-                    ConfigurationManager.ConfigureJsonFiles(context, config);
-                })
-                .ConfigureLogging((context, logging) =>
-                {
-                    logging.ClearProviders(); // Standard-Konsolen-Logger entfernen
-                                              // Liest nun automatisch aus der serilog.json, da sie Teil der Configuration ist
-                    Log.Logger = new LoggerConfiguration()
-                        .ReadFrom.Configuration(context.Configuration)
-                        .CreateLogger();
+            // 2. Den fertig konfigurierten Builder über den Manager anfordern
+            var hostBuilder = ConfigurationManager.CreateHostBuilder();
 
-                    logging.AddSerilog();     // Serilog an das Microsoft-Logging anbinden
-                })
+            // 3. Nur noch die reinen Anwendungs-Services registrieren und bauen
+            AppHost = hostBuilder
                 .ConfigureServices((context, services) =>
                 {
-                   // 3. Hier registrieren Sie Ihre Fenster und ViewModels für DI
                     services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
                     services.AddSingleton<IUserRepository, MockUserRepository>();
+
                     services.AddSingleton<MainWindow>();
-                    services.AddTransient<MainWindowViewModel>(); // Falls Sie MVVM nutzen
+                    services.AddTransient<MainWindowViewModel>();
                 })
                 .Build();
         }
