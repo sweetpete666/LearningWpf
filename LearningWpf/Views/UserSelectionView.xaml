@@ -1,0 +1,25 @@
+<UserControl x:Class="LearningWpf.Views.UserSelectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#666666"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <Style x:Key="ComboBoxGroupStyle" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Margin="24">
+
+        <!-- Titel -->
+        <TextBlock Text="Benutzerauswahl"
+                   FontSize="20"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,24"/>
+    </StackPanel>
+</UserControl>
