@@ -9,5 +9,6 @@ namespace LearningWpf
         public string ApplicationName { get; set; } = "LearningWpf";
         public int MaxItemsPerPage { get; set; } = 20;
         public bool EnableFeatureX { get; set; }
+        public bool ShowConsole { get; set; }
     }
 }

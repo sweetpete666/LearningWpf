@@ -1,31 +1,40 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
-using System.Linq;
 
 namespace LearningWpf.Helper
 {
     public static class ConfigurationManager
     {
-        // ── NEU: DER GESAMTE BUILDER WIRD HIER ERZEUGT UND KONFIGURIERT ──────
         public static IHostBuilder CreateHostBuilder()
         {
-            // 1. Den rohen Standard-Builder instanziieren
             var builder = Host.CreateDefaultBuilder();
-
-            // 2. Umgebung ermitteln
             var environment = DetectEnvironment();
 
-            // 3. Alle Teilschritte anhängen und den konfigurierten Builder zurückgeben
             return builder
                 .UseEnvironment(environment)
+                // 1. SCHRITT: Alle JSON-Dateien einlesen
                 .ConfigureAppConfiguration(ConfigureJsonFiles)
-                .ConfigureLogging(ConfigureLogging);
+
+                // 2. SCHRITT: Infrastruktur-Services ZUERST registrieren (Wichtig für das Konsolen-Timing!)
+                .ConfigureServices((context, services) =>
+                {
+                    services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
+
+                    services.AddSingleton<ConsoleManager>();
+                    services.AddHostedService<ConsoleStarter>();
+                    services.AddHostedService<LifetimeLoggingService>();
+                })
+
+                // 3. SCHRITT: Serilog an den Host binden (Jetzt existieren die Konsolen-Dienste bereits im Kontext!)
+                .UseSerilog((context, services, loggerConfiguration) =>
+                {
+                    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+                }, writeToProviders: true);
         }
 
-        private static string DetectEnvironment()
+        public static string DetectEnvironment()
         {
             var executionPath = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -40,11 +49,10 @@ namespace LearningWpf.Helper
 
         private static void ConfigureJsonFiles(HostBuilderContext context, IConfigurationBuilder config)
         {
-            config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
-
             var currentEnv = context.HostingEnvironment.EnvironmentName;
-            var envLoggingJson = $"logging.{currentEnv}.json";
-            config.AddJsonFile(envLoggingJson, optional: true, reloadOnChange: true);
+
+            config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
+            config.AddJsonFile($"logging.{currentEnv}.json", optional: true, reloadOnChange: true);
 
             if (context.HostingEnvironment.IsDevelopment())
             {
@@ -57,23 +65,20 @@ namespace LearningWpf.Helper
                     cleanUserName = "Developer";
                 }
 
-                var developerLoggingJson = $"logging.Development.{cleanUserName}.json";
-                config.AddJsonFile(developerLoggingJson, optional: true, reloadOnChange: true);
-
-                var developerAppJson = $"appsettings.Development.{cleanUserName}.json";
-                config.AddJsonFile(developerAppJson, optional: true, reloadOnChange: true);
+                config.AddJsonFile($"logging.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
+                config.AddJsonFile($"appsettings.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
             }
         }
+    }
 
-        private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)
+    internal class LifetimeLoggingService : IHostedService
+    {
+        public LifetimeLoggingService(IHostApplicationLifetime lifetime)
         {
-            logging.ClearProviders();
-
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(context.Configuration)
-                .CreateLogger();
-
-            logging.AddSerilog();
+            lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
         }
+
+        public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

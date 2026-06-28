@@ -14,24 +14,17 @@ namespace LearningWpf
     /// </summary>
     public partial class App : Application
     {
-        private readonly ConsoleManager consoleManager = new();
         public static IHost? AppHost { get; private set; }
 
         public App()
         {
-            // 1. Konsole initialisieren (lädt Position aus Registry)
-            this.consoleManager.InitializeConsole();
-
-            // 2. Den fertig konfigurierten Builder über den Manager anfordern
             var hostBuilder = ConfigurationManager.CreateHostBuilder();
 
             // 3. Nur noch die reinen Anwendungs-Services registrieren und bauen
             AppHost = hostBuilder
                 .ConfigureServices((context, services) =>
                 {
-                    services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
                     services.AddSingleton<IUserRepository, MockUserRepository>();
-
                     services.AddSingleton<MainWindow>();
                     services.AddTransient<MainWindowViewModel>();
                 })
@@ -54,10 +47,6 @@ namespace LearningWpf
         {
             // Host sauber stoppen und Ressourcen freigeben
             AppHost?.StopAsync().GetAwaiter().GetResult();
-            Log.CloseAndFlush(); // Serilog-Buffer leeren
-
-            this.consoleManager.TerminateConsole();
-
             base.OnExit(e);
         }
 

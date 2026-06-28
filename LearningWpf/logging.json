@@ -6,18 +6,18 @@
     ],
     "MinimumLevel": "Debug",
     "WriteTo": [
-      { "Name": "Debug" },
       {
         "Name": "Console",
         "Args": {
           "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}",
-          "theme": "Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Code, Serilog.Sinks.Console"
+          "theme": "Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Code, Serilog.Sinks.Console",
+          "applyThemeToRedirectedOutput": true
         }
       },
       {
         "Name": "File",
         "Args": {
-          "path": "D:/ProjectsData/LearningWpf/logs/log",
+          "path": "logs/app-log.txt",
           "rollingInterval": "Day"
         }
       }
