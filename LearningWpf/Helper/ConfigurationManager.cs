@@ -23,20 +23,12 @@ namespace LearningWpf.Helper
             // Dadurch existiert das Windows-Fenster-Handle rechtzeitig für Serilog.
             consoleManager.InitializeConsole();
 
-            var environment = DetectEnvironment();
-            Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", environment);
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
-
-            var builder = Host.CreateDefaultBuilder();
-            
-
-            return builder
-                .UseEnvironment(environment)
+            return Host.CreateDefaultBuilder()
+                .UseEnvironment(DetectEnvironment())
                 .ConfigureAppConfiguration(ConfigureJsonFiles)
                 .ConfigureLogging(ConfigureLogging)
                 .ConfigureServices((context, services) =>
                 {
-                    // Das unschöne xxxxx(context) sauber durch den .NET-Standard ersetzt:
                     services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
 
                     // Registrierung des automatischen Shutdown-Services
@@ -50,6 +42,7 @@ namespace LearningWpf.Helper
         private static void LogConfiguration(HostBuilderContext context, IConfigurationRoot configRoot)
         {
             Console.WriteLine("Loaded Configuration sources:");
+            List<string> notLoaded = [];
             foreach (var provider in configRoot.Providers)
             {
                 var keys = provider.GetChildKeys(Enumerable.Empty<string>(), null);
@@ -58,7 +51,10 @@ namespace LearningWpf.Helper
                 var sourceInfo = provider.ToString() ?? providerName;
                 if (keyCount > 0) 
                     Console.WriteLine($"{sourceInfo}: {keyCount} values");
+                else
+                    notLoaded.Add(sourceInfo);
             }
+            if (notLoaded.Count > 0) Console.WriteLine($"Not loaded: {string.Join(",", notLoaded)}");
         }
 
         public static string DetectEnvironment()
@@ -78,12 +74,12 @@ namespace LearningWpf.Helper
         {
 
             // config.Sources.Clear();
-            var basePath = AppDomain.CurrentDomain.BaseDirectory;
-            config.SetBasePath(basePath);
+            // var basePath = AppDomain.CurrentDomain.BaseDirectory;
+            // config.SetBasePath(basePath);
 
             var currentEnv = context.HostingEnvironment.EnvironmentName;
 
-            config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
+            config.AddJsonFile("logging.json", optional: true, reloadOnChange: true);
             config.AddJsonFile($"logging.{currentEnv}.json", optional: true, reloadOnChange: true);
 
             if (context.HostingEnvironment.IsDevelopment())
