@@ -43,31 +43,22 @@ namespace LearningWpf.Helper
                     services.AddHostedService<HostShutdownCleanupService>();
 
                     if (context.Configuration is IConfigurationRoot configRoot)
-                    {
-                        Console.WriteLine("\n=== Geladene Konfigurations-Quellen ===");
-
-                        var appName = context.Configuration["AppSettings:ApplicationName"];
-                        Console.WriteLine($"Aktueller ApplicationName im System: '{appName}'");
-                        Console.WriteLine("---------------------------------------");
-
-                        foreach (var provider in configRoot.Providers)
-                        {
-                            // Ein leeres Target-Dictionary, in das wir die Keys des Providers laden
-                            var keys = provider.GetChildKeys(Enumerable.Empty<string>(), null);
-                            var keyCount = keys.Count();
-
-                            // Verschönert die Ausgabe (entfernt den Namespace-Präfix der Provider-Klasse)
-                            var providerName = provider.GetType().Name;
-
-                            // Falls es ein Datei-Provider ist (z.B. JsonConfigurationProvider), 
-                            // versuchen wir den genauen Dateinamen anzuzeigen
-                            var sourceInfo = provider.ToString() ?? providerName;
-
-                            Console.WriteLine($"-> Quelle: {sourceInfo} | Geladene Werte: {keyCount}");
-                        }
-                        Console.WriteLine("=======================================\n");
-                    }
+                        LogConfiguration(context, configRoot);
                 });
+        }
+
+        private static void LogConfiguration(HostBuilderContext context, IConfigurationRoot configRoot)
+        {
+            Console.WriteLine("Loaded Configuration sources:");
+            foreach (var provider in configRoot.Providers)
+            {
+                var keys = provider.GetChildKeys(Enumerable.Empty<string>(), null);
+                var keyCount = keys.Count();
+                var providerName = provider.GetType().Name;
+                var sourceInfo = provider.ToString() ?? providerName;
+                if (keyCount > 0) 
+                    Console.WriteLine($"{sourceInfo}: {keyCount} values");
+            }
         }
 
         public static string DetectEnvironment()
@@ -85,17 +76,15 @@ namespace LearningWpf.Helper
 
         private static void ConfigureJsonFiles(HostBuilderContext context, IConfigurationBuilder config)
         {
-            config.Sources.Clear();
+
+            // config.Sources.Clear();
             var basePath = AppDomain.CurrentDomain.BaseDirectory;
             config.SetBasePath(basePath);
 
             var currentEnv = context.HostingEnvironment.EnvironmentName;
 
             config.AddJsonFile("logging.json", optional: false, reloadOnChange: true);
-            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            
             config.AddJsonFile($"logging.{currentEnv}.json", optional: true, reloadOnChange: true);
-            config.AddJsonFile($"appsettings.{currentEnv}.json", optional: true, reloadOnChange: true);
 
             if (context.HostingEnvironment.IsDevelopment())
             {
@@ -110,11 +99,6 @@ namespace LearningWpf.Helper
 
                 config.AddJsonFile($"logging.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
                 config.AddJsonFile($"appsettings.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
-
-                foreach (var x in config.Sources)
-                {
-                    Console.WriteLine($"Config source: {x}");
-                }
             }
         }
 
