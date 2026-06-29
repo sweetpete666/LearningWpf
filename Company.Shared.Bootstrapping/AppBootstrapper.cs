@@ -1,16 +1,10 @@
-﻿using LearningWpf.Models; // Wichtig für den AppSettings-Typ
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace LearningWpf.Helper
+namespace Company.Shared.Bootstrapping
 {
     public class AppBootstrapper
     {
@@ -36,8 +30,6 @@ namespace LearningWpf.Helper
                 .ConfigureLogging(ConfigureLogging)
                 .ConfigureServices((context, services) =>
                 {
-                    services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
-
                     // Registrierung des automatischen Shutdown-Services
                     services.AddHostedService<HostShutdownCleanupService>();
 
@@ -64,7 +56,7 @@ namespace LearningWpf.Helper
             }
             return this;
         }
-    
+
         private static void LogConfiguration(HostBuilderContext context, IConfigurationRoot configRoot)
         {
             Console.WriteLine("Loaded Configuration sources:");
@@ -75,7 +67,7 @@ namespace LearningWpf.Helper
                 var keyCount = keys.Count();
                 var providerName = provider.GetType().Name;
                 var sourceInfo = provider.ToString() ?? providerName;
-                if (keyCount > 0) 
+                if (keyCount > 0)
                     Console.WriteLine($"{sourceInfo}: {keyCount} values");
                 else
                     notLoaded.Add(sourceInfo);

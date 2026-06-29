@@ -1,4 +1,4 @@
-﻿namespace LearningWpf.Helper
+﻿namespace Company.Shared.Bootstrapping
 {
     public class NotEncryptedException : Exception
     {

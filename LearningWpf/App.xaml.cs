@@ -1,10 +1,8 @@
-﻿using LearningWpf.Helper;
+﻿using Company.Shared.Bootstrapping;
 using LearningWpf.Repositories;
 using LearningWpf.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Serilog;
 using System.Windows;
 
 namespace LearningWpf
@@ -18,9 +16,6 @@ namespace LearningWpf
 
         public App()
         {
-            string dbPath = GlobalLibrary.Instance.GetPath("DatabaseConfig");
-
-            // 2. Den fertig konfigurierten Builder über den Manager anfordern
             var hostBuilder = AppBootstrapper.Instance
                 .AddJsonFiles(
                     GlobalLibrary.Instance.GetPaths("ApiSettings", "DatabaseConfig")
@@ -31,6 +26,7 @@ namespace LearningWpf
             AppHost = hostBuilder
                 .ConfigureServices((context, services) =>
                 {
+                    services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
                     services.AddSingleton<IUserRepository, MockUserRepository>();
                     services.AddSingleton<MainWindow>();
                     services.AddTransient<MainWindowViewModel>();

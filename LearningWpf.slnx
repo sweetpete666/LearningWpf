@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Company.Shared.Bootstrapping/Company.Shared.Bootstrapping.csproj" Id="951a7d86-b21a-4130-adbc-86ba3066d719" />
   <Project Path="LearningWpf/LearningWpf.csproj" />
 </Solution>

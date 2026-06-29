@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32; // Unbedingt für den Registry-Zugriff hinzufügen!
 using System.Runtime.InteropServices;
-using Microsoft.Win32; // Unbedingt für den Registry-Zugriff hinzufügen!
 
-namespace LearningWpf.Helper
+namespace Company.Shared.Bootstrapping
 {
     public class ConsoleManager
     {

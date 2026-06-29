@@ -1,7 +1,4 @@
-﻿using LearningWpf.Helper;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Company.Shared.Bootstrapping;
 
 namespace LearningWpf
 {

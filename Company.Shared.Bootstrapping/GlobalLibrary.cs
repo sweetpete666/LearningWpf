@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 
-namespace LearningWpf.Helper
+namespace Company.Shared.Bootstrapping
 {
     public class GlobalLibrary
     {

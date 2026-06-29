@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace LearningWpf.Helper
+namespace Company.Shared.Bootstrapping
 {
     public static class CryptoHelper
     {
