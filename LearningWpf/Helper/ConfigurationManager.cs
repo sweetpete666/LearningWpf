@@ -55,8 +55,16 @@ namespace LearningWpf.Helper
                 jsonFiles.Add(filePath);
             }
             return this;
-        }   
-
+        }
+        public ConfigurationManager AddJsonFiles(IEnumerable<string> filePaths)
+        {
+            foreach (var filePath in filePaths)
+            {
+                AddJsonFile(filePath);
+            }
+            return this;
+        }
+    
         private static void LogConfiguration(HostBuilderContext context, IConfigurationRoot configRoot)
         {
             Console.WriteLine("Loaded Configuration sources:");

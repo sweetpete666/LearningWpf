@@ -18,8 +18,14 @@ namespace LearningWpf
 
         public App()
         {
+            string dbPath = GlobalLibrary.Instance.GetPath("DatabaseConfig");
+
             // 2. Den fertig konfigurierten Builder über den Manager anfordern
-            var hostBuilder = ConfigurationManager.Instance.CreateHostBuilder();
+            var hostBuilder = ConfigurationManager.Instance
+                .AddJsonFiles(
+                    GlobalLibrary.Instance.GetPaths("ApiSettings", "DatabaseConfig")
+                )
+                .CreateHostBuilder();
 
             // 3. Nur noch die reinen Anwendungs-Services registrieren und bauen
             AppHost = hostBuilder
