@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LearningWpf.Helper;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,5 +10,6 @@ namespace LearningWpf
         public string ApplicationName { get; set; } = "XXX";
         public int MaxItemsPerPage { get; set; } = 20;
         public bool EnableFeatureX { get; set; }
+        public EncryptedString Encrypted { get; set; }
     }
 }
