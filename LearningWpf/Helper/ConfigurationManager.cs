@@ -12,12 +12,19 @@ using System.Threading.Tasks;
 
 namespace LearningWpf.Helper
 {
-    public static class ConfigurationManager
+    public class ConfigurationManager
     {
+        private static ConfigurationManager? _instance;
+        public static ConfigurationManager Instance => _instance ??= new ConfigurationManager();
+
+        private List<string> jsonFiles = [];
+
         // 1. Die Instanz des ConsoleManager wird hier zentral als statisches Feld gehalten
         private static readonly ConsoleManager consoleManager = new();
 
-        public static IHostBuilder CreateHostBuilder()
+        private ConfigurationManager() { }
+
+        public IHostBuilder CreateHostBuilder()
         {
             // 2. TIMING-FIX: Konsole SOFORT erstellen, noch VOR dem Builder!
             // Dadurch existiert das Windows-Fenster-Handle rechtzeitig für Serilog.
@@ -35,9 +42,20 @@ namespace LearningWpf.Helper
                     services.AddHostedService<HostShutdownCleanupService>();
 
                     if (context.Configuration is IConfigurationRoot configRoot)
+                    {
                         LogConfiguration(context, configRoot);
+                    }
                 });
         }
+
+        public ConfigurationManager AddJsonFile(string filePath)
+        {
+            if (!jsonFiles.Contains(filePath))
+            {
+                jsonFiles.Add(filePath);
+            }
+            return this;
+        }   
 
         private static void LogConfiguration(HostBuilderContext context, IConfigurationRoot configRoot)
         {
@@ -82,6 +100,12 @@ namespace LearningWpf.Helper
             config.AddJsonFile("logging.json", optional: true, reloadOnChange: true);
             config.AddJsonFile($"logging.{currentEnv}.json", optional: true, reloadOnChange: true);
 
+            foreach (var jsonFile in Instance.jsonFiles)
+            {
+                config.AddJsonFile(jsonFile, optional: true, reloadOnChange: true);
+                config.AddJsonFile(ExtendBy(jsonFile, currentEnv), optional: true, reloadOnChange: true);
+            }
+
             if (context.HostingEnvironment.IsDevelopment())
             {
                 var rawUserName = Environment.UserName;
@@ -93,11 +117,25 @@ namespace LearningWpf.Helper
                     cleanUserName = "Developer";
                 }
 
-                config.AddJsonFile($"logging.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
-                config.AddJsonFile($"appsettings.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
+                config.AddJsonFile($"logging.{currentEnv}.{cleanUserName}.json", optional: true, reloadOnChange: true);
+                config.AddJsonFile($"appsettings.{currentEnv}.{cleanUserName}.json", optional: true, reloadOnChange: true);
+                foreach (var jsonFile in Instance.jsonFiles)
+                {
+                    config.AddJsonFile(ExtendBy(jsonFile, $"{currentEnv}.{cleanUserName}"), optional: true, reloadOnChange: true);
+                }
             }
 
             config.AddSubstitution();
+        }
+
+        private static string ExtendBy(string filePath, string subExtension)
+        {
+            var directory = Path.GetDirectoryName(filePath) ?? string.Empty;
+            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(filePath);
+            var extension = Path.GetExtension(filePath);
+            var envFileName = $"{fileNameWithoutExt}.{subExtension}{extension}";
+            var envFilePath = Path.Combine(directory, envFileName);
+            return envFilePath;
         }
 
         private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)

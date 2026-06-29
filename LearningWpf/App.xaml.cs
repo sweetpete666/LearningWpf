@@ -19,7 +19,7 @@ namespace LearningWpf
         public App()
         {
             // 2. Den fertig konfigurierten Builder über den Manager anfordern
-            var hostBuilder = ConfigurationManager.CreateHostBuilder();
+            var hostBuilder = ConfigurationManager.Instance.CreateHostBuilder();
 
             // 3. Nur noch die reinen Anwendungs-Services registrieren und bauen
             AppHost = hostBuilder
