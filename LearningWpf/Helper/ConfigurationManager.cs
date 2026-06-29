@@ -96,6 +96,8 @@ namespace LearningWpf.Helper
                 config.AddJsonFile($"logging.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
                 config.AddJsonFile($"appsettings.Development.{cleanUserName}.json", optional: true, reloadOnChange: true);
             }
+
+            config.AddSubstitution();
         }
 
         private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder logging)
