@@ -21,7 +21,7 @@ namespace LearningWpf
             string dbPath = GlobalLibrary.Instance.GetPath("DatabaseConfig");
 
             // 2. Den fertig konfigurierten Builder über den Manager anfordern
-            var hostBuilder = ConfigurationManager.Instance
+            var hostBuilder = AppBootstrapper.Instance
                 .AddJsonFiles(
                     GlobalLibrary.Instance.GetPaths("ApiSettings", "DatabaseConfig")
                 )

@@ -12,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace LearningWpf.Helper
 {
-    public class ConfigurationManager
+    public class AppBootstrapper
     {
-        private static ConfigurationManager? _instance;
-        public static ConfigurationManager Instance => _instance ??= new ConfigurationManager();
+        private static AppBootstrapper? _instance;
+        public static AppBootstrapper Instance => _instance ??= new AppBootstrapper();
 
         private List<string> jsonFiles = [];
 
         // 1. Die Instanz des ConsoleManager wird hier zentral als statisches Feld gehalten
         private static readonly ConsoleManager consoleManager = new();
 
-        private ConfigurationManager() { }
+        private AppBootstrapper() { }
 
         public IHostBuilder CreateHostBuilder()
         {
@@ -48,7 +48,7 @@ namespace LearningWpf.Helper
                 });
         }
 
-        public ConfigurationManager AddJsonFile(string filePath)
+        public AppBootstrapper AddJsonFile(string filePath)
         {
             if (!jsonFiles.Contains(filePath))
             {
@@ -56,7 +56,7 @@ namespace LearningWpf.Helper
             }
             return this;
         }
-        public ConfigurationManager AddJsonFiles(IEnumerable<string> filePaths)
+        public AppBootstrapper AddJsonFiles(IEnumerable<string> filePaths)
         {
             foreach (var filePath in filePaths)
             {
