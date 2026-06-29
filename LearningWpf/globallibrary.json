@@ -2,6 +2,7 @@
   "Paths": {
     "DatabaseConfig": "C:\\CompanyGlobals\\database.json",
     "LoggingConfig": "C:\\CompanyGlobals\\logging.shared.json",
-    "ApiSettings": "\\\\company-share\\configs\\api.json"
+    "ApiSettings": "\\\\company-share\\configs\\api.json",
+    "XXX": "D:\\ProjectsData\\LearningWpf\\settings\\xxx.json"
   }
 }

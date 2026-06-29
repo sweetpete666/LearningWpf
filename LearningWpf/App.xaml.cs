@@ -18,7 +18,7 @@ namespace LearningWpf
         {
             var hostBuilder = AppBootstrapper.Instance
                 .AddJsonFiles(
-                    GlobalLibrary.Instance.GetPaths("ApiSettings", "DatabaseConfig")
+                    GlobalLibrary.Instance.GetPaths("XXX")
                 )
                 .CreateHostBuilder();
 

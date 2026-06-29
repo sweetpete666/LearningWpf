@@ -8,5 +8,6 @@ namespace LearningWpf
         public int MaxItemsPerPage { get; set; } = 20;
         public bool EnableFeatureX { get; set; }
         public EncryptedString? Encrypted { get; set; }
+        public string? XXX { get; set; }
     }
 }

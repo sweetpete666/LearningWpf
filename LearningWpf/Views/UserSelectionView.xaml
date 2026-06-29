@@ -21,6 +21,13 @@
 
     <StackPanel Margin="24">
 
+        <TextBlock Text="{Binding XXX}"
+               FontSize="14"
+               FontWeight="Bold"
+               Foreground="Crimson"
+               Margin="0,0,0,8"/>
+
+        
         <!-- Titel -->
         <TextBlock Text="BenutzerauswahlXXX"
                    FontSize="20"

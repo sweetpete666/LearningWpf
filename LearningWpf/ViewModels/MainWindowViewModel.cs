@@ -15,6 +15,9 @@ namespace LearningWpf.ViewModels
         public ObservableCollection<JobGroup> AvailableJobGroups { get; } = new();
         public ObservableCollection<Job> AvailableJobs { get; } = new();
 
+        public string XXX { get; set; }
+
+
         // ── Ausgewählte Werte ─────────────────────────────────────────────────
         private User? _selectedUser;
         public User? SelectedUser
@@ -59,7 +62,9 @@ namespace LearningWpf.ViewModels
         {
             this.logger = logger;
             this.userRepository = userRepository;
-            this.settings = options.Value;
+            settings = options.Value;
+            XXX = settings.XXX ?? "nicht definiert";
+
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("MainWindowViewModel created with AppSettings: {@AppSettings}", settings);
             LoadData();
